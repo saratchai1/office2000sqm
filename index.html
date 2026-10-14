@@ -1,8 +1,102 @@
 <!doctype html>
-<html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#132631"><meta name="description" content="โมเดลอาคารสำนักงาน O4F P03 จาก IngeTrazo พร้อมแยกแสดงงานระบบ"><title>OFFICE 2000 · Building Systems</title><link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./viewer.css"><script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script><script type="module" src="./viewer.js"></script></head>
-<body><div class="app-shell"><aside class="sidebar" id="sidebar" aria-label="เครื่องมือดูอาคาร"><div class="brand"><div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div><div><div class="brand-title">OFFICE<span>2000</span></div><div class="brand-subtitle">BUILDING SYSTEMS · P03</div></div></div><div class="sidebar-scroll"><div class="project-card"><div class="eyebrow light">ACTUAL PROJECT MODEL <span class="green-dot"></span></div><h2>อาคารสำนักงาน<br>4 ชั้น</h2><p>พื้นที่รวมประมาณ 2,000 ตร.ม.</p><div class="project-card-rule"></div><div class="mini-stats"><div><span>ไฟล์ต้นทาง</span><strong>P03</strong></div><div><span>กลุ่มการแสดงผล</span><strong>11</strong></div></div><p class="footnote">โมเดลที่เจ้าของโครงการเผยแพร่</p></div>
-<div class="side-section"><div class="section-heading"><span>01 / FLOOR SELECTOR</span><span class="section-caption">เลือกชั้น</span></div><div class="floor-list" id="floor-list" role="group" aria-label="เลือกชั้น"><button class="floor-btn active" data-floor="all" aria-pressed="true">▦ <span>ทุกชั้น</span></button><button class="floor-btn" data-floor="roof" aria-pressed="false">RF <span>หลังคา / ดาดฟ้า</span></button><button class="floor-btn" data-floor="4" aria-pressed="false">04 <span>ชั้น 4</span></button><button class="floor-btn" data-floor="3" aria-pressed="false">03 <span>ชั้น 3</span></button><button class="floor-btn" data-floor="2" aria-pressed="false">02 <span>ชั้น 2</span></button><button class="floor-btn" data-floor="1" aria-pressed="false">01 <span>ชั้น 1</span></button></div><p class="tool-note">ตัดตามระดับ 0 / 4 / 8 / 12 / 16 ม. ที่อนุมานจากรูปทรง ไม่ใช่ชื่อชั้นจาก BIM</p></div>
-<div class="side-section"><div class="section-heading"><span>02 / BUILDING SYSTEMS</span><span class="section-caption">เปิด–ปิดระบบ</span></div><div class="quick-actions"><button id="show-all">แสดงทั้งหมด</button><button id="mep-only">เฉพาะงานระบบ</button></div><div id="layers" class="system-list" aria-label="ระบบอาคาร"></div><p class="tool-note">ชื่อระบบเป็นการอนุมานจากสีและรูปทรงของไฟล์ ไม่ใช่ข้อมูลรับรองจากแบบ</p><label class="view-option"><input id="roof-cut" type="checkbox">ตัดหลังคาออก</label><label class="view-option"><input id="xray" type="checkbox">ตัวอาคารโปร่งใส</label><label class="view-option"><input id="system-colors" type="checkbox">แสดงสีแยกแต่ละระบบ</label></div></div><div class="sidebar-footer"><span class="footer-online"></span><span>O4F · REAL MODEL</span><span class="footer-version">v0.2</span></div></aside>
-<main class="workspace"><header class="topbar"><div class="topbar-start"><button class="menu-btn" id="menu-btn" aria-label="เปิดหรือปิดเมนู" aria-controls="sidebar" aria-expanded="false">☰</button><div><div class="breadcrumb">OFFICE 2000 <span>/</span> BUILDING SYSTEMS</div><h1>สำรวจอาคาร <span>O4F · P03</span></h1></div></div><div class="topbar-actions"><span class="demo-badge real-badge">ACTUAL MODEL</span><button class="outline-btn" id="screenshot-btn">↧ <span>บันทึกภาพ</span></button></div></header><div class="content"><div class="intro-bar"><div><span class="eyebrow dark">REAL MODEL · INGETRAZO</span><p>ดูอาคารจริง เลือกชั้น และแยกดูแนวท่อหรืออุปกรณ์แต่ละระบบ</p></div><div class="intro-side"><div><strong>Public presentation</strong><span>เผยแพร่โดยเจ้าของโครงการ</span></div></div></div>
-<section class="viewer-panel" aria-label="โมเดลอาคารสามมิติ"><div class="viewer-stage" id="viewer-stage"><div class="stage-overlay top-left"><span class="stage-kicker"><span class="pulsing-dot"></span> O4F · P03</span><div class="stage-heading" id="view-name">มุมมองอาคาร</div><span class="stage-description" id="view-description">กำลังโหลดโมเดลจริง...</span></div><div class="view-status" id="view-status" role="status" aria-live="polite">กำลังเตรียม 3D Viewer...</div><div id="loading-panel"><strong id="loading-title">กำลังโหลดโมเดลจริง</strong><progress id="load-progress" max="100" value="0"></progress><p id="loading-detail">ไฟล์สำหรับเว็บประมาณ 45.9 MB</p><button id="retry-btn" hidden>ลองโหลดอีกครั้ง</button></div><div class="stage-overlay bottom-left"><span class="scale-label">REAL MODEL · SYSTEM FILTERS</span><span class="scale-detail" id="mode-indicator">ไม่มีข้อมูลทิศเหนือในไฟล์</span></div><div class="stage-controls" role="group" aria-label="มุมมอง"><button data-view="iso" class="control-btn active" aria-label="มุมมองสามมิติ">3D</button><button data-view="front" class="control-btn">หน้า</button><button data-view="right" class="control-btn">ขวา</button><button data-view="top" class="control-btn">บน</button><button id="home-view" class="control-btn" aria-label="คืนมุมมองเริ่มต้น">⌂</button><button id="fit-all" class="control-btn" title="ดูทั้งบริเวณโครงการ">รวม</button><button id="fullscreen-btn" class="control-btn" aria-label="เต็มหน้าจอ">⛶</button></div></div><div class="viewer-bottom"><div>ลากเพื่อหมุน · เลื่อนเพื่อซูม · คลิกขวาหรือสองนิ้วเพื่อเลื่อนภาพ</div><div id="geometry-status">กำลังโหลด...</div></div></section>
-<div class="bottom-grid"><section class="info-card model-card"><div class="card-icon">▣</div><div class="card-body"><div class="card-overline">CURRENT MODEL</div><h3 id="model-title">O4F_BIM_P03_lod.glb</h3><p id="model-subtitle">ใช้รูปทรงจากไฟล์ของโครงการ เก็บสามเหลี่ยมต้นฉบับครบ ไม่ใช่อาคารจำลอง</p><div class="model-tags"><span>4 FLOORS</span><span>2,000 SQ.M. APPROX.</span><span id="model-count">97 MESH GROUPS</span></div><button id="download-model" class="text-btn" disabled>ดาวน์โหลด GLB ที่แยกกลุ่มแล้ว</button></div></section><section class="info-card import-card"><div class="card-icon upload-icon">↑</div><div class="card-body"><div class="card-overline">LOCAL PREVIEW</div><h3>ทดลองเปิดไฟล์อื่น</h3><p>เปิด GLB จากเครื่องได้โดยไม่อัปโหลด ไฟล์ที่ไม่มีชื่อระบบจะอยู่ในกลุ่ม “ยังไม่ระบุ” การเลือกไฟล์นี้ไม่เปลี่ยนโมเดลบนเว็บ</p><div class="import-actions"><label class="import-btn" for="file-input">เลือกไฟล์ GLB ↗</label><input id="file-input" type="file" accept=".glb" hidden><button id="reset-model" class="text-btn">กลับโมเดลโครงการ</button></div></div></section></div><details class="classification-note"><summary>ขอบเขตการแยกระบบและการแบ่งชั้น</summary><p>ไฟล์ต้นฉบับรวมวัตถุเป็น mesh เดียว ไม่มีชื่อระบบหรือชั้น จึงแยกจากวัสดุ สี ตำแหน่ง และรูปทรงที่เชื่อมต่อกัน สถาปัตยกรรมและโครงสร้างที่รวมเนื้อวัสดุกันยังคงอยู่กลุ่มเดียว อุปกรณ์ฝ้าที่ระบุชนิดไม่ได้แยกไว้ต่างหาก ปุ่มเลือกชั้นใช้ระนาบตัดตามความสูง จึงไม่ใช่การแยก BIM object ตามชั้น และไม่แสดงหน้าปิดบนผิวที่ถูกตัด</p><p>การแสดงผลนี้ไม่ได้ยืนยันขนาดท่อ สมรรถนะ ความถูกต้องของแบบ หรือการไม่ชนกันของระบบ จำนวนกลุ่ม mesh ไม่ใช่จำนวนอุปกรณ์สำหรับถอดปริมาณ</p></details><div class="disclaimer"><span>ⓘ</span> โมเดลจริงจากเจ้าของโครงการ · การจำแนกระบบเป็นการอนุมานเพื่อช่วยดูแบบ <a href="https://github.com/saratchai1/office2000sqm" target="_blank" rel="noopener noreferrer">SOURCE ↗</a></div></div></main></div><script>setTimeout(()=>{if(!document.querySelector('#viewer-stage canvas')){document.getElementById('loading-title').textContent='ไม่สามารถเริ่ม 3D Viewer ได้';document.getElementById('loading-detail').textContent='ตรวจการเชื่อมต่อหรือเปิดเบราว์เซอร์ที่รองรับ WebGL 2';document.getElementById('view-status').textContent='โหลดโปรแกรมไม่สำเร็จ';}},12000);</script></body></html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#132631">
+  <meta name="description" content="สำรวจอาคารสำนักงาน O4F P03 และแยกดูระบบอาคารในมุมมองสามมิติ">
+  <title>OFFICE 2000 · Building Systems</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./viewer.css?v=0.3.0">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
+  <script type="module" src="./viewer.js?v=0.3.0"></script>
+</head>
+<body>
+<div class="app-shell" id="app-shell">
+  <aside class="sidebar" id="sidebar" aria-label="เลือกระบบอาคาร">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div><div class="brand-title">OFFICE<span>2000</span></div><div class="brand-subtitle">BUILDING SYSTEMS · P03</div></div>
+      <button class="panel-close" id="close-panel" type="button" aria-label="ปิดรายการระบบ">×</button>
+    </div>
+    <div class="panel-heading"><h2>ระบบอาคาร</h2><span id="system-count" aria-live="polite">11 กลุ่ม</span></div>
+    <div class="quick-actions" role="group" aria-label="แสดงระบบแบบรวดเร็ว">
+      <button id="show-all" type="button">แสดงทั้งหมด</button>
+      <button id="mep-only" type="button">เฉพาะงานระบบ</button>
+    </div>
+    <div class="sidebar-scroll" id="system-scroll" tabindex="0" role="region" aria-label="รายการระบบ เลื่อนภายในแถบนี้">
+      <div id="layers" class="system-list" role="group" aria-label="เปิดหรือปิดแต่ละระบบ"></div>
+      <details class="display-settings">
+        <summary>ตัวเลือกการแสดงผล</summary>
+        <div class="display-settings-body">
+          <label class="view-option"><input id="roof-cut" type="checkbox"><span>ตัดหลังคาออก</span></label>
+          <label class="view-option"><input id="xray" type="checkbox"><span>ตัวอาคารโปร่งใส</span></label>
+          <label class="view-option"><input id="system-colors" type="checkbox"><span>แสดงสีแยกแต่ละระบบ</span></label>
+        </div>
+      </details>
+    </div>
+    <div class="sidebar-footer"><span>ระบบจำแนกเพื่อช่วยดูแบบ</span><button id="classification-btn" type="button">รายละเอียด ⓘ</button></div>
+  </aside>
+  <main class="workspace" id="workspace">
+    <header class="topbar">
+      <div class="topbar-start">
+        <button class="menu-btn" id="menu-btn" type="button" aria-label="ซ่อนรายการระบบ" aria-controls="sidebar" aria-expanded="true"><span aria-hidden="true">☰</span><span id="menu-label">ซ่อนรายการ</span></button>
+        <h1>สำรวจอาคาร <span>O4F · P03</span></h1>
+      </div>
+      <div class="topbar-actions"><span class="project-summary">4 ชั้น · 2,000 ตร.ม.</span><button class="outline-btn" id="screenshot-btn" type="button" aria-label="บันทึกภาพอาคาร"><span aria-hidden="true">↧</span><span>บันทึกภาพ</span></button></div>
+    </header>
+    <div class="content">
+      <div class="viewer-toolbar">
+        <span class="toolbar-label">เลือกชั้น</span>
+        <div class="floor-list" id="floor-list" role="group" aria-label="เลือกชั้นอาคาร">
+          <button class="floor-btn active" type="button" data-floor="all" aria-pressed="true">ทุกชั้น</button>
+          <button class="floor-btn" type="button" data-floor="1" aria-pressed="false">ชั้น 1</button>
+          <button class="floor-btn" type="button" data-floor="2" aria-pressed="false">ชั้น 2</button>
+          <button class="floor-btn" type="button" data-floor="3" aria-pressed="false">ชั้น 3</button>
+          <button class="floor-btn" type="button" data-floor="4" aria-pressed="false">ชั้น 4</button>
+          <button class="floor-btn" type="button" data-floor="roof" aria-pressed="false">หลังคา</button>
+        </div>
+      </div>
+      <section class="viewer-panel" aria-label="โมเดลอาคารสามมิติ">
+        <div class="viewer-stage" id="viewer-stage">
+          <div class="stage-overlay top-left"><div class="stage-heading" id="view-name">ทุกชั้น</div><span class="stage-description" id="view-description">กำลังโหลดโมเดลจริง…</span></div>
+          <div class="view-status" id="view-status" role="status" aria-live="polite">กำลังเตรียม 3D Viewer…</div>
+          <div id="loading-panel"><strong id="loading-title">กำลังโหลดโมเดลจริง</strong><progress id="load-progress" max="100" value="0" aria-label="ความคืบหน้าการโหลด"></progress><p id="loading-detail">ไฟล์สำหรับเว็บประมาณ 45.9 MB</p><button id="retry-btn" type="button" hidden>ลองโหลดอีกครั้ง</button></div>
+          <div class="stage-overlay bottom-left"><span id="mode-indicator">PUBLIC MODEL · P03</span></div>
+          <div class="stage-controls" role="group" aria-label="มุมมองอาคาร">
+            <button type="button" data-view="iso" class="control-btn active" aria-label="มุมมองสามมิติ" aria-pressed="true">3D</button>
+            <button type="button" data-view="front" class="control-btn" aria-label="มุมมองด้านหน้า" aria-pressed="false">หน้า</button>
+            <button type="button" data-view="right" class="control-btn" aria-label="มุมมองด้านขวา" aria-pressed="false">ขวา</button>
+            <button type="button" data-view="top" class="control-btn" aria-label="มุมมองด้านบน" aria-pressed="false">บน</button>
+            <span class="control-divider" aria-hidden="true"></span>
+            <button type="button" id="home-view" class="control-btn" aria-label="คืนมุมมองเริ่มต้น" title="คืนมุมมองเริ่มต้น">⌂</button>
+            <button type="button" id="fit-all" class="control-btn" aria-label="ดูทั้งบริเวณโครงการ" title="ดูทั้งบริเวณโครงการ">รวม</button>
+            <button type="button" id="fullscreen-btn" class="control-btn" aria-label="เต็มหน้าจอ" title="เต็มหน้าจอ">⛶</button>
+          </div>
+        </div>
+        <div class="viewer-bottom"><span class="navigation-hint">ลากเพื่อหมุน · เลื่อนเพื่อซูม · คลิกขวาเพื่อเลื่อนภาพ</span><span id="geometry-status" aria-live="polite">กำลังโหลด…</span></div>
+      </section>
+    </div>
+  </main>
+</div>
+<dialog id="classification-dialog" aria-labelledby="classification-title">
+  <div class="dialog-header"><h2 id="classification-title">เกี่ยวกับการแสดงผล</h2><button id="close-info" type="button" aria-label="ปิดรายละเอียด">×</button></div>
+  <div class="dialog-body">
+    <p>ระบบในโมเดลนี้แยกจากวัสดุ สี ตำแหน่ง และรูปทรง เพื่อช่วยดูแบบ ไม่ใช่ชื่อระบบที่บันทึกมาใน BIM สถาปัตยกรรมกับโครงสร้างบางส่วนยังรวมอยู่กลุ่มเดียว</p>
+    <p>การเลือกชั้นเป็นการตัดตามระดับความสูง 0 / 4 / 8 / 12 / 16 เมตรที่อนุมานจากรูปทรง ไม่ใช่ข้อมูลชั้นที่ยืนยันจากแบบ และไม่ได้เติมผิวปิดบริเวณที่ตัด</p>
+    <p>จำนวนกลุ่มไม่ใช่จำนวนอุปกรณ์สำหรับถอดปริมาณ และการแสดงผลไม่ได้รับรองขนาดท่อ สมรรถนะ หรือการไม่ชนกันของระบบ</p>
+  </div>
+  <form method="dialog" class="dialog-footer"><button type="submit">ปิด</button></form>
+</dialog>
+<noscript><div class="noscript-message">กรุณาเปิด JavaScript เพื่อดูโมเดลอาคาร</div></noscript>
+<script>
+  setTimeout(() => {
+    if (!document.querySelector('#viewer-stage canvas')) {
+      document.getElementById('loading-title').textContent = 'ไม่สามารถเริ่ม 3D Viewer ได้';
+      document.getElementById('loading-detail').textContent = 'ตรวจการเชื่อมต่อหรือเปิดเบราว์เซอร์ที่รองรับ WebGL 2';
+      document.getElementById('view-status').textContent = 'โหลดโปรแกรมไม่สำเร็จ';
+    }
+  }, 12000);
+</script>
+</body>
+</html>
