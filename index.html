@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#132631" />
+    <meta name="description" content="เว็บสาธิตมุมมองอาคารสำนักงาน 4 ชั้น 2,000 ตารางเมตร และระบบอาคาร 3D สำหรับการนำเสนอผู้บริหาร" />
+    <title>Office 2000 | Building Presentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" aria-label="เครื่องมือจัดการมุมมองอาคาร">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div><div class="brand-title">OFFICE<span>2000</span></div><div class="brand-subtitle">PROJECT PRESENTATION</div></div>
+        </div>
+        <div class="sidebar-scroll">
+          <div class="project-card">
+            <div class="eyebrow light">PROJECT OVERVIEW <span class="green-dot"></span></div>
+            <h2>อาคารสำนักงาน<br />4 ชั้น</h2>
+            <p>พื้นที่รวมประมาณ 2,000 ตร.ม.</p>
+            <div class="project-card-rule"></div>
+            <div class="mini-stats"><div><span>จำนวนชั้น</span><strong>04</strong></div><div><span>พื้นที่ต่อชั้น*</span><strong>500 <small>ตร.ม.</small></strong></div></div>
+            <p class="footnote">*ขนาดสำหรับโมเดลสาธิตเท่านั้น</p>
+          </div>
+
+          <div class="side-section">
+            <div class="section-heading"><span>01 / FLOOR SELECTOR</span><span class="section-caption">เลือกชั้น</span></div>
+            <div class="floor-list" id="floor-list" role="group" aria-label="เลือกชั้นอาคาร">
+              <button class="floor-btn active" data-floor="all" aria-pressed="true"><span class="floor-icon">▦</span><span>แสดงทุกชั้น</span><span class="floor-chevron">↗</span></button>
+              <button class="floor-btn" data-floor="4" aria-pressed="false"><span class="floor-icon">04</span><span>ชั้น 4</span><span class="floor-chevron">›</span></button>
+              <button class="floor-btn" data-floor="3" aria-pressed="false"><span class="floor-icon">03</span><span>ชั้น 3</span><span class="floor-chevron">›</span></button>
+              <button class="floor-btn" data-floor="2" aria-pressed="false"><span class="floor-icon">02</span><span>ชั้น 2</span><span class="floor-chevron">›</span></button>
+              <button class="floor-btn" data-floor="1" aria-pressed="false"><span class="floor-icon">01</span><span>ชั้น 1</span><span class="floor-chevron">›</span></button>
+            </div>
+          </div>
+
+          <div class="side-section">
+            <div class="section-heading"><span>02 / MODEL LAYERS</span><span class="section-caption">ระบบอาคาร</span></div>
+            <div class="layers" id="layers">
+              <label class="layer-item"><span class="layer-color arch"></span><span>สถาปัตยกรรม</span><input type="checkbox" data-layer="architecture" checked /><span class="toggle" aria-hidden="true"></span></label>
+              <label class="layer-item"><span class="layer-color structure"></span><span>โครงสร้าง</span><input type="checkbox" data-layer="structure" checked /><span class="toggle" aria-hidden="true"></span></label>
+              <label class="layer-item"><span class="layer-color mep"></span><span>ระบบ MEP</span><input type="checkbox" data-layer="mep" checked /><span class="toggle" aria-hidden="true"></span></label>
+            </div>
+            <label class="explode-control"><input id="explode-toggle" type="checkbox" /><span>แยกชั้นอาคาร (Exploded view)</span><span class="explode-icon">↕</span></label>
+          </div>
+        </div>
+        <div class="sidebar-footer"><span class="footer-online"></span><span>INTERACTIVE 3D EXPERIENCE</span><span class="footer-version">v0.1</span></div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div class="topbar-start"><button class="menu-btn" id="menu-btn" aria-label="แสดงหรือซ่อนเมนู" aria-controls="sidebar" aria-expanded="false">☰</button><div><div class="breadcrumb">PROJECTS <span>/</span> OFFICE 2000 <span>/</span> 3D VIEWER</div><h1>ภาพรวมอาคาร <span>Building overview</span></h1></div></div>
+          <div class="topbar-actions"><span class="demo-badge"><span class="demo-dot"></span> DEMO MODEL</span><button class="outline-btn" id="screenshot-btn" title="บันทึกภาพมุมมองปัจจุบัน">↧ <span>บันทึกภาพ</span></button></div>
+        </header>
+
+        <div class="content">
+          <div class="intro-bar"><div><span class="eyebrow dark">DESIGN PREVIEW <span class="small-dash"></span> 2026</span><p>สำรวจอาคารจากโมเดลสามมิติ เลือกดูทีละชั้น และเปิดดูระบบประกอบอาคาร</p></div><div class="intro-side"><span class="sun-icon">✳</span><div><strong>Presentation mode</strong><span>เวอร์ชันสำหรับนำเสนอเบื้องต้น</span></div></div></div>
+
+          <section class="viewer-panel" aria-label="พื้นที่แสดงอาคารสามมิติ">
+            <div class="viewer-stage" id="viewer-stage">
+              <div class="stage-overlay top-left"><span class="stage-kicker"><span class="pulsing-dot"></span> LIVE 3D VIEW</span><div class="stage-heading" id="view-name">มุมมองอาคารโดยรวม</div><span class="stage-description" id="view-description">อาคารตัวอย่าง 4 ชั้น • ยังไม่ใช่แบบก่อสร้างจริง</span></div>
+              <div class="stage-overlay top-right"><div class="north-symbol"><div class="north-arrow">↑</div><span>N</span></div></div>
+              <div class="view-status" id="view-status" role="status" aria-live="polite">กำลังเตรียมมุมมอง 3D...</div>
+              <div class="stage-overlay bottom-left"><span class="scale-label">3D BUILDING MODEL</span><span class="scale-track"><span></span></span><span class="scale-detail" id="mode-indicator">ตัวอย่างจำลอง • 25 × 20 ม.</span></div>
+              <div class="stage-controls" role="group" aria-label="เปลี่ยนมุมมองกล้อง"><button data-view="iso" class="control-btn active" aria-label="มุมมองไอโซเมตริก" title="มุมมอง 3D">3D</button><button data-view="front" class="control-btn" aria-label="ด้านหน้า" title="ด้านหน้า">หน้า</button><button data-view="right" class="control-btn" aria-label="ด้านขวา" title="ด้านขวา">ขวา</button><button data-view="top" class="control-btn" aria-label="มุมมองด้านบน" title="ด้านบน">บน</button><span class="control-divider"></span><button id="home-view" class="control-btn icon-btn" aria-label="กลับมุมมองเริ่มต้น" title="รีเซ็ตมุมมอง">⌂</button><button id="fullscreen-btn" class="control-btn icon-btn" aria-label="แสดงเต็มหน้าจอ" title="เต็มหน้าจอ">⛶</button></div>
+            </div>
+            <div class="viewer-bottom"><div><span class="mouse-symbol">⌖</span> <span>ลากเพื่อหมุน</span><span class="bottom-divider">·</span><span>เลื่อนเพื่อซูม</span><span class="bottom-divider">·</span><span>คลิกขวาเพื่อเลื่อนมุมมอง</span></div><div class="viewer-bottom-right" id="geometry-status"><span class="online-circle"></span> DEMONSTRATION SCENE</div></div>
+          </section>
+
+          <div class="bottom-grid">
+            <section class="info-card model-card"><div class="card-icon">▣</div><div class="card-body"><div class="card-overline">CURRENT MODEL</div><h3 id="model-title">อาคารสาธิต 4 ชั้น</h3><p id="model-subtitle">โมเดลจำลองเพื่อทดสอบการนำเสนอ ก่อนใช้ไฟล์ IGZ จริง</p><div class="model-tags"><span>4 FLOORS</span><span>2,000 SQ.M.</span><span>ARCH + STR + MEP</span></div></div></section>
+            <section class="info-card import-card"><div class="card-icon upload-icon">↑</div><div class="card-body"><div class="card-overline">YOUR ACTUAL MODEL</div><h3>นำเข้าโมเดลอาคารจริง</h3><p>Export ไฟล์ <strong>.igz</strong> จาก IngeTrazo เป็น <strong>.glb</strong> แล้วเลือกไฟล์ที่นี่ ไฟล์จะเปิดในเบราว์เซอร์โดยไม่อัปโหลดขึ้นเซิร์ฟเวอร์</p><div class="import-actions"><label class="import-btn" for="file-input">เลือกไฟล์ GLB <span>↗</span></label><input type="file" id="file-input" accept=".glb,model/gltf-binary" hidden /><button id="reset-demo" class="text-btn" hidden>กลับไปดูโมเดลสาธิต</button></div></div></section>
+          </div>
+          <div class="disclaimer"><span>ⓘ</span> ข้อมูลอาคารและระบบทั้งหมดในโมเดลสาธิตใช้เพื่อแสดงความสามารถของ Viewer เท่านั้น ไม่ใช่ข้อมูลออกแบบเพื่อการก่อสร้างหรือการตรวจสอบระบบจริง <a href="https://github.com/saratchai1/office2000sqm" target="_blank" rel="noopener noreferrer">SOURCE ↗</a></div>
+        </div>
+      </main>
+    </div>
+    <script>
+    // The demo engine loads from a pinned CDN. Explain failure instead of leaving an endless spinner.
+    window.setTimeout(() => {
+      if (!document.querySelector('#viewer-stage canvas')) {
+        const message = document.querySelector('#view-status');
+        if (message) message.textContent = 'ไม่สามารถโหลด 3D Viewer ได้ โปรดตรวจอินเทอร์เน็ตแล้วรีเฟรชหน้าเว็บ';
+      }
+    }, 9000);
+  </script>
+  </body>
+</html>
