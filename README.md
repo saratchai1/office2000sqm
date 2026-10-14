@@ -1,78 +1,31 @@
-# OFFICE 2000 — Executive 3D Presentation
+# OFFICE 2000 — actual O4F P03 model
 
-เว็บไซต์ตัวอย่างสำหรับนำเสนอ **อาคารสำนักงาน 4 ชั้น พื้นที่รวมประมาณ 2,000 ตร.ม.** ที่ออกแบบด้วย IngeTrazo (`.igz`)
+Public viewer: https://office2000sqm.vercel.app
 
-> **สถานะ:** DEMO. รูปทรงอาคาร สัดส่วน การแบ่งห้อง และงาน MEP ที่แสดงในเว็บสร้างขึ้นเพื่อสาธิตเท่านั้น ไม่ใช่แบบอาคารของโครงการหรือแบบเพื่อก่อสร้าง
+The owner authorized publishing `O4F_BIM_P03_lod.glb` on 14 October 2026. The initial demo engine is no longer the application entry point. `viewer.js` displays geometry derived from the uploaded model automatically.
 
-## Features (v0.1)
+## What works
 
-- ดูโมเดล 3D หมุน/ซูม/เลื่อน และสลับมุม 3D, หน้า, ขวา, บน
-- เลือกชั้น 1–4 และแสดงทุกชั้นสำหรับโมเดลสาธิต
-- เปิด/ปิดชั้นข้อมูลสถาปัตยกรรม โครงสร้าง และ MEP (เป็น geometry สาธิต)
-- Exploded view เพื่อให้เห็นแต่ละชั้นชัดเจน
-- นำเข้าโมเดลจริง `.glb` ในเครื่องผู้ชมได้โดยตรง (เฉพาะเบราว์เซอร์ ไม่อัปโหลดขึ้นเซิร์ฟเวอร์)
-- ถ้า GLB ตั้งชื่อกลุ่ม Floor/Level และ Architecture/Structure/MEP จะเปิดใช้ตัวกรองตามข้อมูลที่อ่านได้
-- ถ่ายภาพ PNG จากหน้าเว็บและเปิด Fullscreen
-- รองรับจอ Desktop / Mobile และอินเทอร์เฟซภาษาไทย
+Orbit/pan/zoom, front/right/top cameras, height-slice floor selection, roof cut, per-system hide/show and isolation, MEP-only mode, ceiling visibility, ghosted building, system colors, screenshot, GLB download, and local-only GLB preview.
 
-## วิธีเปิดเว็บ
+## Classification limitations — important
 
-เว็บเป็น Static HTML/CSS/ES module ไม่มีขั้นตอน build:
+The source is one node and one mesh with 88 material primitives. It has no authored system, object, or floor metadata. System labels are **inferred visual groups**, not certified BIM properties. Geometry is partitioned using source materials and connected-component bounding boxes. Architecture and structure remain combined because they share connected geometry. Uncertain ceiling devices remain in a separate unclassified/shared group. Red rooftop VRF units are classified as HVAC, not fire equipment.
 
-```bash
-python3 -m http.server 8000
-# เปิด http://localhost:8000
+There are 97 material/system mesh groups, not 97 devices. All 2,917,791 original triangles are retained, with exact position/normal/UV vertex deduplication. A single oversized texture is resized from 8551×5330 to fit 2048 pixels. No geometry decimation, coordinate quantization, or fabricated building geometry is used. Floors are inferred clipping slices around Y=0,4,8,12,16 m, not restored BIM floor identities. Clipped surfaces are not capped. No engineering sizing, safety compliance, collision check, or quantity takeoff is asserted.
+
+## Asset storage / reproducible build
+
+Original: 190,153,384 bytes. Prepared GLB: 162,451,584 bytes. Gzip transfer: 45,868,812 bytes. `model-config.json` pins SHA-256 and sizes; the build fails rather than deploy a missing or wrong model. The prepared GLB includes per-node `extras.system`, `sourceMaterial`, and inference notes.
+
+The binary asset is hosted on Vercel, **not committed to Git**. A backup gzip is stored in the owner's Drive. For local work download the deployed `assets/O4F_BIM_P03_web.glb.gz` into the same relative local path, or set `MODEL_ASSET_SOURCE` to a valid HTTPS asset source. The default build copies the verified asset from the currently live website into the new deployment, so the published version does not rely on a third-party CDN at runtime. Preserve an offline asset backup before deleting the current Vercel project. If the project is recreated, seed it from the local backup or another authorized asset URL.
+
+```sh
+npm install
+npm run build
+python3 -m http.server 8080 --directory dist
 ```
 
-ต้องเชื่อมต่ออินเทอร์เน็ตในการเปิดใช้งานครั้งแรก เนื่องจากโหลด `three@0.168.0` จาก jsDelivr CDN และฟอนต์จาก Google Fonts (ฟอนต์มี fallback ถ้าไม่โหลด) แนะนำใช้ Safari/Chrome รุ่นปัจจุบันที่รองรับ WebGL และ import maps
+Three.js is pinned to 0.168.0. The build copies the required modules to the same origin; no runtime npm CDN is required. Files chosen through Local Preview stay in the browser and do not modify the public project. Plain GLBs without `extras.system` are shown under unclassified; they are not silently given fabricated BIM metadata.
 
-## นำไฟล์จริงจาก IngeTrazo มาแทน
-
-1. ใน IngeTrazo ส่งออกโครงการ `.igz` เป็นไฟล์ **binary glTF (`.glb`)** ที่มี Geometry, Materials และ Textures รวมอยู่ในไฟล์เดียว ตรวจสอบเครื่องมือ Export ที่มีในเวอร์ชันใช้งานจริงก่อน (IGZ ไม่ใช่รูปแบบที่ Browser อ่านโดยตรง)
-2. เปิดเว็บ กด **เลือกไฟล์ GLB** แล้วเลือกไฟล์จากเครื่อง โมเดลตัวอย่างจะถูกแทนที่ทันทีโดยไม่ส่งข้อมูลขึ้นเซิร์ฟเวอร์
-3. กด **กลับไปดูโมเดลสาธิต** หากต้องการย้อนกลับ
-4. หากต้องการให้ผู้บริหารเปิดลิงก์แล้วเห็นโมเดลจริงโดยไม่ต้องเลือกไฟล์เอง ให้เพิ่มไฟล์ GLB ผ่านกระบวนการเผยแพร่ที่ตรวจสอบสิทธิแล้ว และเปลี่ยนโค้ดให้โหลดจาก URL ของไฟล์นั้น (ยัง **ไม่ทำ** ในเวอร์ชันนี้)
-
-### Naming convention เพื่อเปิดใช้งานการแยกชั้น/ระบบ
-
-โมเดล GLB ยังไม่ใช่ BIM database; สำหรับการแสดง/ซ่อนเฉพาะส่วน เว็บจะอ่าน **ชื่อ Object และชื่อ Parent Group** จาก GLB และใช้ชื่อเหล่านั้นเพื่อจัดหมวดหมู่
-
-ตัวอย่าง:
-
-```
-Floor_1 / Architecture / Walls
-Floor_1 / Structure / Columns
-Floor_1 / MEP / Ducts
-Floor_2 / Architecture / Windows
-Floor_2 / MEP / Pipes
-...
-Floor_4 / MEP / HVAC
-```
-
-- Floors: `Floor_1` ... `Floor_4`, `Level_1` ... `Level_4` หรือ `ชั้น_1` ... `ชั้น_4`
-- Layers: `Architecture`, `Structure`, `MEP`, `HVAC`, `Electrical`, `Plumbing`, `Piping`, ฯลฯ
-- **ถ้า GLB ไม่มีชื่อกลุ่มเหล่านี้** เว็บจะแสดงโมเดลทั้งหมด แต่ปิดตัวกรองที่ไม่มีข้อมูล แทนการเดาว่าวัตถุไหนคือชั้นหรือระบบใด
-- ปุ่ม Exploded view รองรับเฉพาะ Demo ใน v0.1 เพราะยังไม่มีการแยกกลุ่มจากไฟล์จริงในรูปแบบที่รับประกันได้
-
-## Data privacy
-
-- โครงการ GitHub นี้เป็น **Public Repository**: ห้าม Commit / Push ไฟล์แบบก่อสร้างจริงหรือข้อมูลอ่อนไหวลงใน Repo นี้หากไม่ได้รับอนุญาต
-- ไฟล์ GLB ที่เลือกจากเครื่องในหน้าเว็บโหลดและ Render ฝั่ง Client เท่านั้น ไม่ถูกอัปโหลดไปยัง Server
-- การให้ผู้อื่นเปิดลิงก์แล้วเห็น GLB จริง จำเป็นต้องจัดการสิทธิการเข้าถึงและพื้นที่เก็บไฟล์ก่อนเสมอ
-- Viewer เป็นการนำเสนอ ไม่ใช่เครื่องมือตรวจสอบมาตรฐาน/ความถูกต้องของการออกแบบวิศวกรรม
-
-## Project structure
-
-```
-index.html     # หน้าตาเว็บ / UI
-styles.css     # Responsive style
-app.js         # Three.js scene + controls + local GLB loader
-vercel.json    # Static hosting on Vercel
-README.md      # คู่มือ
-```
-
-## Deployment
-
-โฮสต์ได้บน Vercel หรือบริการ Static Hosting อื่น ๆ โดยใช้ Root Directory `/` และไม่ต้องกำหนด Build Command เนื่องจากไม่มี npm dependencies
-
-Repository: https://github.com/saratchai1/office2000sqm
+The displayed 2,000 square metres is the owner's approximate project description, not a measured net floor area.
