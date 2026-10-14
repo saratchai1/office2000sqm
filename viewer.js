@@ -67,7 +67,7 @@ function floorRange() {
   if (state.floor === 'all') return null;
   const levels = state.config.floorLevels;
   const index = state.floor === 'roof' ? 4 : Number(state.floor) - 1;
-  return [levels[index] - .2, index === 4 ? Math.max(20, state.fullBounds.max.y + .5) : levels[index + 1] - .2];
+  return [levels[index] - .2, index === 4 ? Math.max(20, (state.fullBounds?.max.y || 20) + .5) : levels[index + 1] - .2];
 }
 function apply() {
   let visible = 0, triangles = 0;
@@ -173,23 +173,36 @@ async function loadModel(file = null) {
     state.loading = false; progress('เปิดโมเดลไม่สำเร็จ', error.name === 'AbortError' ? 'การโหลดหมดเวลา ลองใหม่หรือใช้เครือข่ายที่เร็วขึ้น' : error.message); $('retry-btn').hidden = false; status('โมเดลยังโหลดไม่สำเร็จ'); console.error(error);
   } finally { clearTimeout(timeout); }
 }
-function saveBlob(blob, filename) { const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = filename; a.click(); setTimeout(() => URL.revokeObjectURL(url), 60000); }
+function saveBlob(blob, filename) { const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = filename; a.style.display = 'none'; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000); }
+function exportScreenshot() {
+  if (!state.root || state.loading) return;
+  const button = $('screenshot-btn'); button.disabled = true; status('กำลังเตรียมภาพ...');
+  // Use the preserved frame instead of submitting the entire large scene again.
+  // Defer readback so the initiating click can finish even on software renderers.
+  setTimeout(() => {
+    try { renderer.domElement.toBlob(blob => { button.disabled = false; if (blob) { saveBlob(blob, `office2000-p03-${state.floor}.png`); status('บันทึกภาพแล้ว'); } else status('อ่านภาพจากกราฟิกไม่ได้ ลองรีเฟรชหน้าเว็บ'); }, 'image/png'); }
+    catch (error) { button.disabled = false; status(`บันทึกภาพไม่ได้: ${error.message}`); }
+  }, 100);
+}
+function closeMenu() { $('sidebar').classList.remove('is-open'); $('menu-btn').setAttribute('aria-expanded', 'false'); }
 function bind() {
-  document.querySelectorAll('[data-floor]').forEach(b => b.addEventListener('click', () => { state.floor = b.dataset.floor; apply(); cameraView(state.view); }));
+  document.querySelectorAll('[data-floor]').forEach(b => b.addEventListener('click', () => { if (!state.root) return; state.floor = b.dataset.floor; apply(); cameraView(state.view); }));
   document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => cameraView(b.dataset.view)));
   for (const id of ['roof-cut', 'xray', 'system-colors']) $(id).addEventListener('change', apply);
   $('show-all').addEventListener('click', () => { resetOptions(); apply(); cameraView('iso'); });
   $('mep-only').addEventListener('click', () => { for (const s of state.config.systems) state.systems[s.id] = !['building', 'ceilings', 'furniture'].includes(s.id); apply(); });
   $('home-view').addEventListener('click', () => cameraView('iso'));
   $('fit-all').addEventListener('click', () => cameraView('iso', true));
-  $('menu-btn').addEventListener('click', () => { const open = $('sidebar').classList.toggle('open'); $('menu-btn').setAttribute('aria-expanded', String(open)); });
+  $('menu-btn').addEventListener('click', () => { const open = $('sidebar').classList.toggle('is-open'); $('menu-btn').setAttribute('aria-expanded', String(open)); });
+  document.addEventListener('click', e => { if (innerWidth <= 900 && !$('sidebar').contains(e.target) && !$('menu-btn').contains(e.target)) closeMenu(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
   $('fullscreen-btn').addEventListener('click', async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else if (stage.requestFullscreen) await stage.requestFullscreen(); else status('ใช้การหมุนจอเป็นแนวนอนบนอุปกรณ์นี้'); } catch { status('เบราว์เซอร์ไม่อนุญาตให้แสดงเต็มหน้าจอ'); } });
-  $('screenshot-btn').addEventListener('click', () => { if (!state.root) return; renderer.render(scene, camera); renderer.domElement.toBlob(blob => { if (blob) saveBlob(blob, `office2000-p03-${state.floor}.png`); }); });
+  $('screenshot-btn').addEventListener('click', exportScreenshot);
   $('download-model').addEventListener('click', () => { if (state.raw) saveBlob(new Blob([state.raw], { type: 'model/gltf-binary' }), 'O4F_BIM_P03_web.glb'); });
   $('file-input').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; if (!/\.glb$/i.test(f.name) || f.size > 300e6) { status('เลือกไฟล์ GLB ขนาดไม่เกิน 300 MB'); return; } loadModel(f); });
   $('reset-model').addEventListener('click', () => loadModel());
   $('retry-btn').addEventListener('click', () => loadModel());
 }
-// Read-only diagnostics used by browser smoke tests; no mutation or network endpoints.
+// Read-only diagnostics for browser smoke tests. No mutation or remote endpoints.
 window.officeViewer = { snapshot: () => ({ loading: state.loading, published: state.published, floor: state.floor, meshes: state.meshes.length, visible: state.meshes.filter(m => m.visible).length, visibleSystems: [...new Set(state.meshes.filter(m => m.visible).map(m => m.userData.viewerSystem))], clippingPlanes: state.meshes[0] ? materials(state.meshes[0])[0].clippingPlanes?.length || 0 : 0, render: renderer?.info.render, systems: Object.fromEntries((state.config?.systems || []).map(s => [s.id, state.meshes.filter(m => m.userData.viewerSystem === s.id).length])) }) };
 try { init(); const response = await fetch('./model-config.json'); if (!response.ok) throw new Error('โหลดข้อมูลโครงการไม่ได้'); state.config = await response.json(); bind(); await loadModel(); } catch (error) { progress('เริ่มโปรแกรมไม่สำเร็จ', error.message); status('ไม่สามารถเริ่ม 3D Viewer ได้'); console.error(error); }
