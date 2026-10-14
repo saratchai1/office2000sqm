@@ -93,6 +93,8 @@ function apply() {
   }
   document.querySelectorAll('[data-system]').forEach(input => input.checked = !!state.systems[input.dataset.system]);
   document.querySelectorAll('[data-floor]').forEach(button => { const selected = button.dataset.floor === state.floor; button.classList.toggle('active', selected); button.setAttribute('aria-pressed', String(selected)); button.disabled = !state.published; });
+  const availableSystems = state.config.systems.filter(s => state.meshes.some(m => m.userData.viewerSystem === s.id));
+  $('system-count').textContent = `${availableSystems.filter(s => state.systems[s.id]).length} / ${availableSystems.length} กลุ่ม`;
   $('roof-cut').disabled = !state.published || state.floor !== 'all';
   const label = state.floor === 'all' ? 'ทุกชั้น' : state.floor === 'roof' ? 'หลังคา / ดาดฟ้า' : `ชั้น ${state.floor}`;
   $('view-name').textContent = label;
@@ -113,7 +115,7 @@ function cameraView(view = 'iso', wholeSite = false) {
   const direction = { iso: [1, .7, 1.35], front: [0, .03, 1], right: [1, .03, 0], top: [0, 1, .0001] }[view] || [1, .7, 1.35];
   camera.position.copy(center).add(new THREE.Vector3(...direction).normalize().multiplyScalar(distance));
   controls.target.copy(center); camera.near = .03; camera.far = Math.max(1000, distance * 8); camera.updateProjectionMatrix(); controls.update();
-  document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  document.querySelectorAll('[data-view]').forEach(b => { const selected = b.dataset.view === view; b.classList.toggle('active', selected); b.setAttribute('aria-pressed', String(selected)); });
   state.dirty = true;
 }
 async function downloadBytes(url, signal) {
@@ -128,7 +130,7 @@ async function loadModel(file = null) {
   if (!state.config) return;
   const generation = ++state.generation; state.controller?.abort(); const controller = new AbortController(); state.controller = controller;
   const timeout = setTimeout(() => controller.abort(), 240000);
-  state.loading = true; $('retry-btn').hidden = true; $('download-model').disabled = true;
+  state.loading = true; $('retry-btn').hidden = true;
   progress(file ? 'กำลังเปิดไฟล์ในเครื่อง' : 'กำลังโหลดโมเดลโครงการ', 'กำลังอ่านข้อมูล...', 0);
   try {
     let bytes = file ? await file.arrayBuffer() : await downloadBytes(state.config.asset, controller.signal);
@@ -162,11 +164,8 @@ async function loadModel(file = null) {
     if (state.fullBounds.isEmpty()) throw new Error('ขอบเขตโมเดลไม่ถูกต้อง');
     state.bounds = file ? state.fullBounds.clone() : new THREE.Box3(new THREE.Vector3(...state.config.buildingBounds.min), new THREE.Vector3(...state.config.buildingBounds.max));
     resetOptions(); buildSystemControls(); apply(); cameraView('iso');
-    $('model-title').textContent = file ? file.name : state.config.sourceName;
-    $('model-subtitle').textContent = file ? 'ไฟล์ในเครื่องเท่านั้น ไม่ได้เผยแพร่หรือแทนที่โมเดลโครงการ' : 'เก็บรูปทรงและสามเหลี่ยมต้นฉบับครบ · กลุ่มระบบเป็นการอนุมานเพื่อดูแบบ';
-    $('model-count').textContent = `${state.meshes.length} MESH GROUPS`;
     $('mode-indicator').textContent = file ? 'LOCAL FILE · ไม่อัปโหลด' : 'PUBLIC MODEL · P03';
-    $('loading-panel').hidden = true; $('download-model').disabled = false; state.loading = false;
+    $('loading-panel').hidden = true; state.loading = false;
     renderer.render(scene, camera);
   } catch (error) {
     if (generation !== state.generation) return;
@@ -184,25 +183,63 @@ function exportScreenshot() {
     catch (error) { button.disabled = false; status(`บันทึกภาพไม่ได้: ${error.message}`); }
   }, 100);
 }
-function closeMenu() { $('sidebar').classList.remove('is-open'); $('menu-btn').setAttribute('aria-expanded', 'false'); }
+// The panel is independent of loading and does not remount the renderer.
+const compactScreen = window.matchMedia('(max-width: 900px)');
+const layoutState = { desktopOpen: true, mobileOpen: false };
+function panelIsOpen() { return compactScreen.matches ? layoutState.mobileOpen : layoutState.desktopOpen; }
+function syncLayout() {
+  const open = panelIsOpen();
+  $('app-shell').classList.toggle('sidebar-collapsed', !compactScreen.matches && !open);
+  $('sidebar').classList.toggle('is-open', compactScreen.matches && open);
+  $('sidebar').inert = !open;
+  $('menu-btn').setAttribute('aria-expanded', String(open));
+  $('menu-btn').setAttribute('aria-label', open ? 'ซ่อนรายการระบบ' : 'เปิดรายการระบบ');
+  $('menu-label').textContent = open ? 'ซ่อนรายการ' : 'ระบบ';
+}
+function closeMenu(restoreFocus = false) {
+  if (compactScreen.matches) layoutState.mobileOpen = false;
+  else layoutState.desktopOpen = false;
+  syncLayout();
+  if (restoreFocus) $('menu-btn').focus({ preventScroll: true });
+}
+function setupLayout() {
+  syncLayout();
+  $('menu-btn').addEventListener('click', () => {
+    if (compactScreen.matches) layoutState.mobileOpen = !layoutState.mobileOpen;
+    else layoutState.desktopOpen = !layoutState.desktopOpen;
+    syncLayout();
+    if (panelIsOpen() && compactScreen.matches) $('close-panel').focus({ preventScroll: true });
+  });
+  $('close-panel').addEventListener('click', () => closeMenu(true));
+  compactScreen.addEventListener('change', () => {
+    const focusWasInPanel = $('sidebar').contains(document.activeElement);
+    syncLayout();
+    if (focusWasInPanel && !panelIsOpen()) $('menu-btn').focus({ preventScroll: true });
+  });
+  const info = $('classification-dialog');
+  $('classification-btn').addEventListener('click', () => info.showModal());
+  $('close-info').addEventListener('click', () => info.close());
+  info.addEventListener('click', e => {
+    const r = info.getBoundingClientRect();
+    if (e.target === info && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) info.close();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !info.open && panelIsOpen()) { e.preventDefault(); closeMenu(true); }
+  });
+}
 function bind() {
   document.querySelectorAll('[data-floor]').forEach(b => b.addEventListener('click', () => { if (!state.root) return; state.floor = b.dataset.floor; apply(); cameraView(state.view); }));
   document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => cameraView(b.dataset.view)));
   for (const id of ['roof-cut', 'xray', 'system-colors']) $(id).addEventListener('change', apply);
-  $('show-all').addEventListener('click', () => { resetOptions(); apply(); cameraView('iso'); });
-  $('mep-only').addEventListener('click', () => { for (const s of state.config.systems) state.systems[s.id] = !['building', 'ceilings', 'furniture'].includes(s.id); apply(); });
+  $('show-all').addEventListener('click', () => { if (!state.root) return; resetOptions(); apply(); cameraView('iso'); });
+  $('mep-only').addEventListener('click', () => { if (!state.root) return; for (const s of state.config.systems) state.systems[s.id] = !['building', 'ceilings', 'furniture'].includes(s.id); apply(); });
   $('home-view').addEventListener('click', () => cameraView('iso'));
   $('fit-all').addEventListener('click', () => cameraView('iso', true));
-  $('menu-btn').addEventListener('click', () => { const open = $('sidebar').classList.toggle('is-open'); $('menu-btn').setAttribute('aria-expanded', String(open)); });
-  document.addEventListener('click', e => { if (innerWidth <= 900 && !$('sidebar').contains(e.target) && !$('menu-btn').contains(e.target)) closeMenu(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
   $('fullscreen-btn').addEventListener('click', async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else if (stage.requestFullscreen) await stage.requestFullscreen(); else status('ใช้การหมุนจอเป็นแนวนอนบนอุปกรณ์นี้'); } catch { status('เบราว์เซอร์ไม่อนุญาตให้แสดงเต็มหน้าจอ'); } });
   $('screenshot-btn').addEventListener('click', exportScreenshot);
-  $('download-model').addEventListener('click', () => { if (state.raw) saveBlob(new Blob([state.raw], { type: 'model/gltf-binary' }), 'O4F_BIM_P03_web.glb'); });
-  $('file-input').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; if (!/\.glb$/i.test(f.name) || f.size > 300e6) { status('เลือกไฟล์ GLB ขนาดไม่เกิน 300 MB'); return; } loadModel(f); });
-  $('reset-model').addEventListener('click', () => loadModel());
   $('retry-btn').addEventListener('click', () => loadModel());
 }
 // Read-only diagnostics for browser smoke tests. No mutation or remote endpoints.
 window.officeViewer = { snapshot: () => ({ loading: state.loading, published: state.published, floor: state.floor, meshes: state.meshes.length, visible: state.meshes.filter(m => m.visible).length, visibleSystems: [...new Set(state.meshes.filter(m => m.visible).map(m => m.userData.viewerSystem))], clippingPlanes: state.meshes[0] ? materials(state.meshes[0])[0].clippingPlanes?.length || 0 : 0, render: renderer?.info.render, systems: Object.fromEntries((state.config?.systems || []).map(s => [s.id, state.meshes.filter(m => m.userData.viewerSystem === s.id).length])) }) };
+setupLayout();
 try { init(); const response = await fetch('./model-config.json'); if (!response.ok) throw new Error('โหลดข้อมูลโครงการไม่ได้'); state.config = await response.json(); bind(); await loadModel(); } catch (error) { progress('เริ่มโปรแกรมไม่สำเร็จ', error.message); status('ไม่สามารถเริ่ม 3D Viewer ได้'); console.error(error); }
